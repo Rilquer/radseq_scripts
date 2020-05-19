@@ -10,8 +10,8 @@ case "${option}"
 in
 f) FILE=${OPTARG};;
 n) NSAMPLES=${OPTARG};;
-s) SNPMAX=${OPTARG};;
-m) SNPMIN=${OPTARG};;
+s) SNPMIN=${OPTARG};;
+m) SNPMAX=${OPTARG};;
 
 esac
 done
@@ -50,6 +50,7 @@ else
 	fi
 
 	if [ -z "$SNPMIN" ] && [ "$SNPMAX" != "" ]
+	then
 		echo "When providing maximum number of SNPs to keep, you must also inform minimum number with -s"
 		exit 1
 	fi
