@@ -4,13 +4,14 @@
 ##
 
 
-while getopts f:n:s: option
+while getopts f:n:s:m: option
 do
 case "${option}"
 in
 f) FILE=${OPTARG};;
 n) NSAMPLES=${OPTARG};;
-s) SNPF=${OPTARG};;
+s) SNPMAX=${OPTARG};;
+m) SNPMIN=${OPTARG};;
 
 esac
 done
@@ -24,8 +25,10 @@ then
 Basic usage:
 	-f 		Path to alleles file
 	-n 		Number of samples in your assembly
-	-s 		Filter for SNPS (only loci with number of SNPS equal or greater than this
-			will be kept
+	-s 		Filter for minimum SNPs (only loci with number of SNPS equal or greater than this
+			will be kept)
+	-m		Filter for maximum SNPs (used along with -s, sets an upper limit for the number
+			of SNPs kept). Optional. 
 	-h, --help	Show this info"
 else
 	if [ -z "$FILE" ]
@@ -33,16 +36,24 @@ else
 		echo 'You must provide a path to file with flag -f.'
 		exit 1
 	fi
+
 	if [ -z "$NSAMPLES" ]
 	then
 		echo 'You must provide number of samples with flag -n.'
 		exit 1
 	fi
-	if [ -z "$SNPF" ]
+
+	if [ -z "$SNPMIN" ]
 	then
-		echo 'You must provide number of SNPs for filter with flag -s.'
+		echo 'You must provide a minimum number of SNPs for filter with flag -s.'
 		exit 1
 	fi
+
+	if [ -z "$SNPMIN" ] && [ "$SNPMAX" != "" ]
+		echo "When providing maximum number of SNPs to keep, you must also inform minimum number with -s"
+		exit 1
+	fi
+
 	echo "Counting SNPs..."
 	echo ""
 	grep '//' $FILE > count
@@ -65,7 +76,7 @@ else
 	declare -a kept=()
 	for ((i=0; i<$len; i++))
 	do
-		if [ ${snps[$i]} -ge $SNPF ]
+		if [ ${snps[$i]} -ge $SNPMIN ] -a [ ${snps[$i]} -le $SNPMAX ]
 		then
 			kept=("${kept[@]}" "${loci[$i]}")
 		fi
