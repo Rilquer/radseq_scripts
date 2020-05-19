@@ -77,9 +77,15 @@ else
 	declare -a kept=()
 	for ((i=0; i<$len; i++))
 	do
-		if [ ${snps[$i]} -ge $SNPMIN ] -a [ ${snps[$i]} -le $SNPMAX ]
+		if [ ${snps[$i]} -ge $SNPMIN ]
 		then
-			kept=("${kept[@]}" "${loci[$i]}")
+			if [ -z "$SNPMAX" ]
+			then
+				kept=("${kept[@]}" "${loci[$i]}")
+			elif [ ${snps[$i]} -le $SNPMAX ]
+			then
+				kept=("${kept[@]}" "${loci[$i]}")
+			fi
 		fi
 	done
 	ngrep=$(( 2*NSAMPLES + 5 ))
